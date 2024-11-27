@@ -12,6 +12,11 @@ export	const	PLAYER_HEIGHT = 1;
 export	const	COMPUTER_WIDTH = 4;
 export	const	COMPUTER_HEIGHT = 1;
 
+
+//COMPUTER GOES OUTSIDE OF THE FIELD
+export	const	MAX_SCORE_COUNT = 2;
+export	const	MAX_SET_COUNT = 2;
+
 export const PLAYER1 = {
 	x: 0,
 	y: 0,
@@ -19,7 +24,23 @@ export const PLAYER1 = {
 	width: PLAYER_WIDTH,
 	height: PLAYER_WIDTH,
 	color: 0xff0000,
-	score: 0
+	score: 0,
+	set_count: 0,
+	playerFinalScore: 0
+}
+
+
+//Introduce second player
+export const PLAYER2 = {
+	x: 0,
+	y: 0,
+	paddleDirectionX: 1,
+	width: PLAYER_WIDTH,
+	height: PLAYER_WIDTH,
+	color: 0xff0000,
+	score: 0,
+	set_count: 0,
+	playerFinalScore: 0
 }
 
 // Create the com paddle Object
@@ -29,7 +50,9 @@ export const COM = {
 	width: COMPUTER_WIDTH,
 	height: COMPUTER_HEIGHT,
 	color: 0x00FF00,
-	score: 0
+	score: 0,
+	set_count: 0,
+	playerFinalScore: 0
 }
 
 

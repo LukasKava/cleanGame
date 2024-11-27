@@ -1,14 +1,15 @@
+import './style.css';
 import * as THREE from 'three';
 import {scene, renderer, camera} from './startThreeJsandLights.js';
 import * as FIELD from './playingField.js'
-import {player1, movePlayer, constrainPlayer, computerPlay, COMPUTER_HEIGHT, COM, resetComputer, PLAYER1, computer, PLAYER_WIDTH, PLAYER_HEIGHT} from './player.js';
+import {player1, movePlayer, constrainPlayer, computerPlay, COMPUTER_HEIGHT, COM, resetComputer, PLAYER1, computer, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER2, MAX_SCORE_COUNT, MAX_SET_COUNT} from './player.js';
 import {ball, BALL, BALL_RADIUS, resetBall} from './ball.js';
 console.log('startThreeJsandLights.js loaded');
 
 
 FIELD.constructPlayingField(scene); //Construct the playing field
 
-
+let RUNNING_GAME = true;
 
 
 const cube1Geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
@@ -95,14 +96,119 @@ function collision(b, p) {
            playerZmin <= ballZmax && playerZmax >= ballZmin;
 }
 
+function increaseScoreIndicator(player) {
+	if (1 === player) {
+		console.log("PLayer score:  " + PLAYER1.score);
+		document.getElementById("player1_score").innerText = PLAYER1.score;
+	} else if (2 === player) {
+		//IF COmputer
+		console.log("Com: score: " + COM.score);
+		document.getElementById("player2_score").innerText = COM.score;
+		//IF Player2
+		//document.getElementById("player2_score").textContent = PLAYER2.score.toString();
+	} else {
+		console.log("Error: in point counting logic!");
+	}
+}
+
+function increaseSetIndicator(player) {
+	if (1 === player) {
+		console.log("PLayer set:  " + PLAYER1.set_count);
+		document.getElementById("player1_sets").innerText = PLAYER1.set_count;
+		PLAYER1.score = 0;
+		COM.score = 0;
+		document.getElementById("player2_score").innerText = COM.score;
+		document.getElementById("player1_score").innerText = PLAYER1.score;
+	} else if (2 === player) {
+		//IF COmputer
+		console.log("Com: set: " + COM.set_count);
+		document.getElementById("player2_sets").innerText = COM.set_count;
+		COM.score = 0;
+		PLAYER1.score = 0;
+		document.getElementById("player2_score").innerText = COM.score;
+		document.getElementById("player1_score").innerText = PLAYER1.score;
+		//IF Player2
+		//document.getElementById("player2_score").textContent = PLAYER2.score.toString();
+	} else {
+		console.log("Error: in point counting logic!");
+	}
+}
+
+function	delayWallCollorChange() {
+	let count = 3;
+	const timer = setInterval(function() {
+		count--;
+		if (count === 0) {
+			clearInterval(timer);
+			FIELD.outerWallZ1.material.color.set(0x10112);
+			FIELD.outerWallZ2.material.color.set(0x10112);
+		}
+	}, 800);
+}
+
+function announceWinnerOfTheGame(player) {
+	let	gameEndScreen = document.getElementById('gameEndScreen');
+	let	winnerGameTag = document.getElementById('winnerOfTheGameTag');
+	let gameEndScreenScore = document.getElementById('gameEndScreenScoreTag');
+
+	gameEndScreenScore.textContent = PLAYER1.playerFinalScore + " : " + COM.playerFinalScore;
+	if (1 === player) {
+		console.log("Player 1 wins the game:");
+		winnerGameTag.textContent = "Winner is Player1";
+	} else if (2 === player) {
+		console.log("Player 2 wins the game:");
+		winnerGameTag.textContent = "Winner is Player2";
+	} else {
+		console.log("Error: in point logic!");
+	}
+	gameEndScreen.style.display = "flex";
+	RUNNING_GAME = false;
+}
+
 function update() {
+	if (RUNNING_GAME === false ) {
+		return ;
+	}
 	//Check if ball goes outside of the field
 	if (ball.position.z + BALL_RADIUS > FIELD.FIELD_LENGTH / 2) {
 		COM.score++;
+		COM.playerFinalScore++;
+		FIELD.outerWallZ2.material.color.set(0xFFFFFF);
+		delayWallCollorChange();
+		//Annouce set win and increase set count
+		if (MAX_SCORE_COUNT === COM.score) {
+			console.log("Computer wins a set!");
+			COM.set_count++;
+			increaseSetIndicator(2);
+			if (MAX_SET_COUNT === COM.set_count) {
+				//Annouce winner of the game
+				announceWinnerOfTheGame(2);
+				return ;
+			}
+
+		} else {
+			increaseScoreIndicator(2);
+		}
 		resetBall();
 		resetComputer();
 	} else if  (ball.position.z - BALL_RADIUS < -FIELD.FIELD_LENGTH / 2) {
 		PLAYER1.score++;
+		PLAYER1.playerFinalScore++;
+		FIELD.outerWallZ1.material.color.set(0xFF0000);
+		delayWallCollorChange();
+		//Annouce set win and increase set count
+		if (MAX_SCORE_COUNT === COM.score) {
+			console.log("Player 1 wins a set!");
+			PLAYER1.set_count++;
+			increaseSetIndicator(1);
+			if (MAX_SET_COUNT === PLAYER1.set_count) {
+				//Announce Winner of the game
+				announceWinnerOfTheGame(1);
+				return ;
+			}	
+		} else {
+			increaseScoreIndicator(1);
+		}
 		resetBall();
 		resetComputer();
 	}

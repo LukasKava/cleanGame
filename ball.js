@@ -33,7 +33,8 @@ const ballBoundingSphere = new THREE.Sphere(ball.position, BALL_RADIUS);
 export function resetBall(){
 	BALL.x = 0;
 	BALL.y = 0;
-	BALL.velocity = -0.2;
+	BALL.velocityZ = -0.1;
+	BALL.velocityX = 0.1;
 	BALL.speed = 0.02;
 
 	ball.position.x = 0;
